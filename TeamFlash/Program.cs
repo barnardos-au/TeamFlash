@@ -1,29 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
+using System.Configuration;
 using System.Linq;
 using System.Threading;
-using System.Xml.Serialization;
 
 namespace TeamFlash
 {
     class Program
     {
-        static void Main()
+        private static void Main()
         {
-            Logger.VerboseEnabled = PromptForVerboseMode();
+            var teamFlashConfig = ConfigurationManager.AppSettings.MapTo<TeamFlashConfig>();
 
-            var teamFlashConfig = LoadConfig();
-
-            teamFlashConfig.ServerUrl = ReadConfig("TeamCity URL", teamFlashConfig.ServerUrl);
-            teamFlashConfig.Username = ReadConfig("Username", teamFlashConfig.Username);
-            var password = ReadConfig("Password", "");
-            teamFlashConfig.BuildTypeIds = ReadConfig("Comma separated build type ids to INCLUDE (eg, \"bt64,bt12\"), or * for ALL", teamFlashConfig.BuildTypeIds);
-            teamFlashConfig.BuildTypeIdsExcluded =
-                ReadConfig("Comma separated build type ids to EXCLUDE (eg, \"bt64,bt12\"), or * for NONE",
-                    teamFlashConfig.BuildTypeIdsExcluded);
-
-            SaveConfig(teamFlashConfig);
+            Logger.VerboseEnabled = teamFlashConfig.Verbose;
 
             Console.Clear();
 
@@ -43,7 +32,7 @@ namespace TeamFlash
                 var lastBuildStatus = RetrieveBuildStatus(
                     teamFlashConfig.ServerUrl,
                     teamFlashConfig.Username,
-                    password,
+                    teamFlashConfig.Password,
                     buildTypeIds,
                     buildTypeIdsExcluded);
                 switch (lastBuildStatus)
@@ -77,77 +66,6 @@ namespace TeamFlash
             return buildTypeIds == "*"
                 ? new string[0]
                 : buildTypeIds.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToArray();
-        }
-
-        static bool PromptForVerboseMode()
-        {
-            Console.Write("Would you like to start in VERBOSE mode? (y/n)");
-            var selection = Console.ReadKey(true /*intercept*/).KeyChar;
-            Console.WriteLine();
-            var verbose = char.ToLower(selection) == 'y';
-            if (verbose) Console.WriteLine("VERBOSE mode is ON. Re-run TeamFlash in order to revert this.");
-            Console.WriteLine();
-            return verbose;
-        }
-
-        static TeamFlashConfig LoadConfig()
-        {
-            var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            var configFilePath = Path.Combine(appDataPath, @"TeamFlash\config.json");
-            try
-            {
-                if (!File.Exists(configFilePath)) return new TeamFlashConfig();
-
-                Logger.WriteLine("Reading config values from: {0}", configFilePath);
-
-                var serializer = new XmlSerializer(typeof(TeamFlashConfig));
-                using (var stream = File.OpenRead(configFilePath))
-                {
-                    return (TeamFlashConfig)serializer.Deserialize(stream);
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.WriteLine("The following exception occurred loading the config file \"{0}\":{2}Message: {1}{2}Feel free to quit and fix it or re-enter your server details...", configFilePath, ex.Message, Environment.NewLine);
-            }
-            return new TeamFlashConfig();
-        }
-
-        static void SaveConfig(TeamFlashConfig config)
-        {
-            var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            var teamFlashPath = Path.Combine(appDataPath, @"TeamFlash\");
-            if (!Directory.Exists(teamFlashPath))
-                Directory.CreateDirectory(teamFlashPath);
-
-            var configFilePath = Path.Combine(teamFlashPath, @"config.json");
-
-            var serializer = new XmlSerializer(typeof(TeamFlashConfig));
-            using (var stream = File.Create(configFilePath))
-            {
-                serializer.Serialize(stream, config);
-            }
-        }
-
-        static string ReadConfig(string name, string previousValue)
-        {
-            string input = null;
-            while (string.IsNullOrEmpty(input))
-            {
-                Logger.WriteLine("{0}?", name);
-                if (!string.IsNullOrEmpty(previousValue))
-                {
-                    Logger.WriteLine("(press enter for previous value: {0})", previousValue);
-                }
-                input = Console.ReadLine();
-                if (!string.IsNullOrEmpty(previousValue) &&
-                    string.IsNullOrEmpty(input))
-                {
-                    input = previousValue;
-                }
-                Console.WriteLine();
-            }
-            return input;
         }
 
         static void Wait()

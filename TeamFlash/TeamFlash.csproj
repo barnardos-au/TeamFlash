@@ -44,6 +44,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
@@ -55,6 +56,7 @@
   <ItemGroup>
     <Compile Include="BuildLight.cs" />
     <Compile Include="BuildStatus.cs" />
+    <Compile Include="NameValueCollectionExtensions.cs" />
     <Compile Include="DelcomBuildIndicator.cs" />
     <Compile Include="IBuildLight.cs" />
     <Compile Include="Linux\BuildLight.cs" />
