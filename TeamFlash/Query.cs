@@ -11,6 +11,8 @@ namespace TeamFlash
 {
     public class Query : DynamicObject, IEnumerable
     {
+        private readonly ILogger logger;
+
         readonly string baseUrl;
         readonly string username;
         readonly string password;
@@ -18,11 +20,13 @@ namespace TeamFlash
         XDocument childDocument;
 
         public Query(
+            ILogger logger,
             string baseUrl,
             string username,
             string password,
             XDocument document = null)
         {
+            this.logger = logger;
             this.baseUrl = baseUrl;
             this.username = username;
             this.password = password;
@@ -53,7 +57,7 @@ namespace TeamFlash
             if (document == null)
             {
                 Load(bindingName);
-                result = new Query(baseUrl, username, password, document);
+                result = new Query(logger, baseUrl, username, password, document);
                 return true;
             }
 
@@ -111,13 +115,13 @@ namespace TeamFlash
                     XDocument stepChildDocument;
                     if (TryRetrieveChildDocument(selectedDecendants.First(), out stepChildDocument))
                     {
-                        result = new Query(baseUrl, username, password, stepChildDocument);
+                        result = new Query(logger, baseUrl, username, password, stepChildDocument);
                         return true;
                     }
                     result = selectedDecendants.First().Value;
                     return true;
                 }
-                result = new Query(baseUrl, username, password, new XDocument(selectedDecendants));
+                result = new Query(logger, baseUrl, username, password, new XDocument(selectedDecendants));
                 return true;
             }
 
@@ -202,7 +206,7 @@ namespace TeamFlash
 
             try
             {
-                Logger.Verbose("Invoking query '{0}'.", queryUrl);
+                logger.Verbose("Invoking query '{0}'.", queryUrl);
                 using (var stream = client.OpenRead(queryUrl))
                 using (var reader = XmlReader.Create(stream, new XmlReaderSettings() { DtdProcessing = DtdProcessing.Ignore }))
                 {
@@ -211,7 +215,7 @@ namespace TeamFlash
             }
             catch(Exception exception)
             {
-                Logger.Error(exception);
+                logger.Error(exception);
                 return null;
             }
         }
@@ -248,7 +252,7 @@ namespace TeamFlash
 
             var childName = secondElement.First().Name.LocalName;
             var decendants = from decendant in parentDocument.Descendants(childName)
-                             select new Query(baseUrl, username, password, new XDocument(decendant));
+                             select new Query(logger, baseUrl, username, password, new XDocument(decendant));
             return decendants.ToList();
         }
     }

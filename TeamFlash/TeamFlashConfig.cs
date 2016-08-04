@@ -8,5 +8,6 @@
         public bool Verbose { get; set; }
         public string BuildTypeIds { get; set; }
         public string BuildTypeIdsExcluded { get; set; }
+        public int IntervalSeconds { get; set; }
     }
 }

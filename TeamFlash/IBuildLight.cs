@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace TeamFlash
+﻿namespace TeamFlash
 {
-    interface IBuildLight
+    public interface IBuildLight
     {
         void Success();
         void Warning();

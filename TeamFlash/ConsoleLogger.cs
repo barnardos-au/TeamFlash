@@ -2,15 +2,15 @@
 
 namespace TeamFlash
 {
-    public class Logger
+    public class ConsoleLogger : ILogger
     {
-        public static void WriteLine(string message, params object[] parameters)
+        public void WriteLine(string message, params object[] parameters)
         {
-            var messageToLog = String.Format(message, parameters);
+            var messageToLog = string.Format(message, parameters);
             Console.WriteLine("{0} {1}", DateTime.Now.ToShortTimeString(), messageToLog);
         }
 
-        public static void Verbose(string message, params object[] parameters)
+        public void Verbose(string message, params object[] parameters)
         {
             if (VerboseEnabled)
             {
@@ -18,11 +18,11 @@ namespace TeamFlash
             }
         }
 
-        public static void Error(Exception exception)
+        public void Error(Exception exception)
         {
             WriteLine(exception.ToString());
         }
 
-        public static bool VerboseEnabled { get; set; }
+        public bool VerboseEnabled { get; set; }
     }
 }
