@@ -15,7 +15,7 @@ Any (recent) Windows machine running .NET Framework 4.5.2+
 A suitable Delcom product (see above).
 
 ## Instructions
-Edit **TeamFlash.exe.config** and insert your TeamCity settings including _serverUrl_, _username_ and _password_, and add your project inclusions and exclusions.
+Edit **TeamFlash.exe.config** and insert your TeamCity settings including _serverUrl_, _username_ and _password_, and add your project inclusions (_buildTypeIds_) and exclusions (_buildTypeIdsExcluded_). Set the update interval (_intervalSeconds_) in seconds.
 
 Run **TeamFlash.exe** to test. See **TeamFlash.log** for details. If you require verbose logging set _verbose_ to true and restart.
 
