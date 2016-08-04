@@ -8,3 +8,27 @@ It's tested with the [Delcom 904003](http://www.delcomproducts.com/productdetail
 We have removed the interactive prompts and separate config file which was stored in the user profile folder, and instead we are using app settings.
 
 The application can now be installed as a Windows Service. This is to avoid having to login and restart the app after a power failure.
+
+## Requirements
+Any (recent) Windows machine running .NET Framework 4.5.2+
+
+A suitable Delcom product (see above).
+
+## Instructions
+Edit **TeamFlash.exe.config** and insert your TeamCity settings including _serverUrl_, _username_ and _password_, and add your project inclusions (_buildTypeIds_) and exclusions (_buildTypeIdsExcluded_). Set the update interval (_intervalSeconds_) in seconds.
+
+Run **TeamFlash.exe** to test. See **TeamFlash.log** for details. If you require verbose logging set _verbose_ to true and restart.
+
+To install as a service run:
+
+```
+TeamFlash install
+TeamFlash start
+```
+
+To uninstall the service run:
+
+```
+TeamFlash stop
+TeamFlash uninstall
+```
