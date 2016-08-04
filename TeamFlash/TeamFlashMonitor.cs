@@ -9,25 +9,21 @@ namespace TeamFlash
     public class TeamFlashMonitor
     {
         private readonly IBuildLight buildLight;
-        private readonly TeamFlashConfig teamFlashConfig;
         private readonly ILogger logger;
-        private readonly TimeSpan interval;
 
         public TeamFlashMonitor(
             IBuildLight buildLight, 
-            TeamFlashConfig teamFlashConfig, 
-            ILogger logger, 
-            TimeSpan interval)
+            ILogger logger)
         {
             this.buildLight = buildLight;
-            this.teamFlashConfig = teamFlashConfig;
             this.logger = logger;
-            this.interval = interval;
         }
 
-        public async Task Run(CancellationToken token)
+        public async Task Run(CancellationToken token, TeamFlashConfig teamFlashConfig)
         {
             logger.VerboseEnabled = teamFlashConfig.Verbose;
+
+            var interval = TimeSpan.FromSeconds(teamFlashConfig.IntervalSeconds);
 
             var buildTypeIds = ConvertBuildTypeIdsToArray(teamFlashConfig.BuildTypeIds);
             var buildTypeIdsExcluded = ConvertBuildTypeIdsToArray(teamFlashConfig.BuildTypeIdsExcluded);
